@@ -1,13 +1,12 @@
 import jwt
 import time
 import logging
-import sqlite3 as sqlite
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from bookstore.init_database.create_table import User, Store, Book_info, Order_status, Order, Inventory_info, book_pic
-from bookstore.be.model import error
+from be.database import User
+from be.model import error
 
 # encode a json string like:
 #   {
@@ -37,11 +36,11 @@ def jwt_decode(encoded_token, user_id: str) -> str:
     return decoded
 
 
-class Gamer():
+class UserManager():
     token_lifetime: int = 3600  # 3600 second
 
     def __init__(self):
-        engine = create_engine('postgresql://postgres:@localhost:5432/bookstore')
+        engine = create_engine('postgresql://root:123456@localhost:5432/bookstore')
         DBSession = sessionmaker(bind=engine)
         self.session = DBSession()
 
@@ -72,14 +71,13 @@ class Gamer():
             )
             self.session.add(new_gamer)
             self.session.commit()
-        except sqlite.Error:
+        except BaseException:
             return error.error_exist_user_id(user_id)
         return 200, "ok"
 
     def check_token(self, user_id: str, token: str) -> (int, str):
         get_token = self.session.query(User).filter(User.user_id==user_id).first()
-        # cursor = self.conn.execute("SELECT token from user where user_id=?", (user_id,))
-        # row = cursor.fetchone()
+
         if get_token is None:
             return error.error_authorization_fail()
         db_token = get_token.token
@@ -89,8 +87,7 @@ class Gamer():
 
     def check_password(self, user_id: str, password: str) -> (int, str):
         get_passwd = self.session.query(User).filter(User.user_id==user_id).first()
-        # cursor = self.conn.execute("SELECT password from user where user_id=?", (user_id,))
-        # row = cursor.fetchone()
+        
         if get_passwd is None:
             return error.error_authorization_fail()
 
@@ -113,8 +110,7 @@ class Gamer():
             user_.token = token
             user_.terminal = terminal
             self.session.commit()
-        except sqlite.Error as e:
-            return 528, "{}".format(str(e)), ""
+            
         except BaseException as e:
             return 530, "{}".format(str(e)), ""
         return 200, "ok", token
@@ -130,16 +126,12 @@ class Gamer():
 
             user_ = self.session.query(User).filter(User.user_id == user_id).first()
 
-            # cursor = self.conn.execute(
-            #     "UPDATE user SET token = ?, terminal = ? WHERE user_id=?",
-            #     (dummy_token, terminal, user_id), )
             if user_ is None:
                 return error.error_authorization_fail()
             user_.token = dummy_token
             user_.terminal = terminal
             self.session.commit()
-        except sqlite.Error as e:
-            return 528, "{}".format(str(e))
+            
         except BaseException as e:
             return 530, "{}".format(str(e))
         return 200, "ok"
@@ -151,13 +143,12 @@ class Gamer():
                 return code, message
             query = self.session.query(User).filter(User.user_id == user_id)
             query.delete()
-            # cursor = self.conn.execute("DELETE from user where user_id=?", (user_id,))
+
             if query.first() is None:
                 self.session.commit()
             else:
                 return error.error_authorization_fail()
-        except sqlite.Error as e:
-            return 528, "{}".format(str(e))
+            
         except BaseException as e:
             return 530, "{}".format(str(e))
         return 200, "ok"
@@ -174,18 +165,16 @@ class Gamer():
             user_.password = new_password
             user_.token = token
             user_.terminal = terminal
-            # cursor = self.conn.execute(
-            #     "UPDATE user set password = ?, token= ? , terminal = ? where user_id = ?",
-            #     (new_password, token, terminal, user_id), )
+            
             if user_ is None:
                 return error.error_authorization_fail()
             user_.password = new_password
             user_.token = token
             user_.terminal = terminal
             self.session.commit()
-        except sqlite.Error as e:
-            return 528, "{}".format(str(e))
+            
         except BaseException as e:
             return 530, "{}".format(str(e))
         return 200, "ok"
+
 
