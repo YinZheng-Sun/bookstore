@@ -130,7 +130,7 @@ class BuyerManager():
             cursor = self.session.query(User).filter_by(user_id=user_id)
             row = cursor.first()
             if row is None:
-                return error.error_authorization_fail()
+                return error.error_non_exist_user_id()
 
             if row.password != password:
                 return error.error_authorization_fail()
@@ -150,13 +150,18 @@ class BuyerManager():
 
     def receive(self, user_id: str, password: str, order_id: str):
         try:
-            if self.session.query(User).filter_by(user_id=user_id).first() is None:
-                return error.error_non_exist_user_id(user_id)
+            cursor = self.session.query(User).filter_by(user_id=user_id)
+            row = cursor.first()
+            if row is None:
+                return error.error_non_exist_user_id()
+
+            if row.password != password:
+                return error.error_authorization_fail()
             
             cursor = self.session.query(Order).filter_by(id=order_id, buyer_id=user_id, status=Order_status.delivering)
             rowcount = cursor.update({Order.status: Order_status.received})
             if rowcount == 0:
-                return error.error_non_exist_user_id(user_id)
+                return error.error_invalid_order_id(user_id)
 
             self.session.commit()
             self.session.close()
