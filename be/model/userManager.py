@@ -5,7 +5,7 @@ import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from be.model.database import User, Store, Book_info, Order_status, Order, Inventory_info, book_pic
+from be.database import User
 from be.model import error
 
 # encode a json string like:
@@ -36,11 +36,11 @@ def jwt_decode(encoded_token, user_id: str) -> str:
     return decoded
 
 
-class userManager():
+class UserManager():
     token_lifetime: int = 3600  # 3600 second
 
     def __init__(self):
-        engine = create_engine('postgresql://postgres:@localhost:5432/bookstore')
+        engine = create_engine('postgresql://root:123456@localhost:5432/bookstore')
         DBSession = sessionmaker(bind=engine)
         self.session = DBSession()
 
@@ -62,7 +62,10 @@ class userManager():
         try:
             terminal = "terminal_{}".format(str(time.time()))
             token = jwt_encode(user_id, terminal)
-            print(token)
+
+            if self.session.query(User).filter_by(user_id=user_id).first() is not None:
+                return error.error_exist_user_id(user_id)
+            
             new_gamer = User(
                 user_id=user_id,
                 password = password,
@@ -70,14 +73,15 @@ class userManager():
                 token = token,
                 terminal = terminal
             )
-            print(self.session.add(new_gamer))
+            self.session.add(new_gamer)
             self.session.commit()
-        except BaseException:
-            return error.error_exist_user_id(user_id)
+        except BaseException as e:
+            return 530, "{}".format(str(e))
         return 200, "ok"
 
     def check_token(self, user_id: str, token: str) -> (int, str):
         get_token = self.session.query(User).filter(User.user_id==user_id).first()
+
         if get_token is None:
             return error.error_authorization_fail()
         db_token = get_token.token
@@ -87,6 +91,7 @@ class userManager():
 
     def check_password(self, user_id: str, password: str) -> (int, str):
         get_passwd = self.session.query(User).filter(User.user_id==user_id).first()
+        
         if get_passwd is None:
             return error.error_authorization_fail()
 
@@ -125,9 +130,6 @@ class userManager():
 
             user_ = self.session.query(User).filter(User.user_id == user_id).first()
 
-            # cursor = self.conn.execute(
-            #     "UPDATE user SET token = ?, terminal = ? WHERE user_id=?",
-            #     (dummy_token, terminal, user_id), )
             if user_ is None:
                 return error.error_authorization_fail()
             user_.token = dummy_token
@@ -145,7 +147,7 @@ class userManager():
                 return code, message
             query = self.session.query(User).filter(User.user_id == user_id)
             query.delete()
-            # cursor = self.conn.execute("DELETE from user where user_id=?", (user_id,))
+
             if query.first() is None:
                 self.session.commit()
             else:
@@ -167,9 +169,7 @@ class userManager():
             user_.password = new_password
             user_.token = token
             user_.terminal = terminal
-            # cursor = self.conn.execute(
-            #     "UPDATE user set password = ?, token= ? , terminal = ? where user_id = ?",
-            #     (new_password, token, terminal, user_id), )
+            
             if user_ is None:
                 return error.error_authorization_fail()
             user_.password = new_password
@@ -180,4 +180,5 @@ class userManager():
         except BaseException as e:
             return 530, "{}".format(str(e))
         return 200, "ok"
+
 

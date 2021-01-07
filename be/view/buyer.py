@@ -40,3 +40,30 @@ def add_funds():
     b = BuyerManager()
     code, message = b.add_funds(user_id, password, add_value)
     return jsonify({"message": message}), code
+
+
+@bp_buyer.route("/receive", methods=["POST"])
+def receive():
+    user_id: str = request.json.get("user_id")
+    order_id: str = request.json.get("order_id")
+    password: str = request.json.get("password")
+    b = BuyerManager()
+    code, message = b.receive(user_id, password, order_id)
+    return jsonify({"message": message}), code
+
+
+@bp_buyer.route("/cancel", methods=["POST"])
+def cancel():
+    user_id: str = request.json.get("user_id")
+    order_id: str = request.json.get("order_id")
+    password: str = request.json.get("password")
+    b = BuyerManager()
+    code, message = b.cancel(user_id, password, order_id)
+    return jsonify({"message": message}), code
+
+@bp_buyer.route("/history", methods=["POST"])
+def history():
+    user_id: str = request.json.get("user_id")
+    u = BuyerManager()
+    code, message, orders = u.history(user_id=user_id)
+    return jsonify({"message": message, "orders": orders}), code

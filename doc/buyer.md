@@ -14,8 +14,8 @@ token | string | 登录产生的会话标识 | N
 ##### Body:
 ```json
 {
-  "user_id": "buyer_id",
-  "store_id": "store_id",
+  "user_id": "buyer id",
+  "store_id": "store id",
   "books": [
     {
       "id": "1000067",
@@ -81,8 +81,8 @@ POST http://[address]/buyer/payment
 ##### Body:
 ```json
 {
-  "user_id": "buyer_id",
-  "order_id": "order_id",
+  "user_id": "buyer id",
+  "order_id": "order id",
   "password": "password"
 }
 ```
@@ -120,7 +120,7 @@ POST http://[address]/buyer/add_funds
 ##### Body:
 ```json
 {
-  "user_id": "user_id",
+  "user_id": "buyer id",
   "password": "password",
   "add_value": 10
 }
@@ -142,3 +142,153 @@ Status Code:
 200 | 充值成功
 401 | 授权失败
 5XX | 无效参数
+
+## 买家确认收货
+
+#### URL：
+POST http://[address]/buyer/receive
+
+#### Request
+
+
+
+##### Body:
+```json
+{
+  "user_id": "$buyer id$",
+  "order_id": "$order id$",
+  "password": "$password$"
+}
+```
+
+##### 属性说明：
+
+key | 类型 | 描述 | 是否可为空
+---|---|---|---
+user_id | string | 买家用户ID | N
+password | string | 用户密码 | N
+order_id | string | 订单ID | N
+
+
+Status Code:
+
+码 | 描述
+--- | ---
+200 | 充值成功
+401 | 授权失败
+5XX | 无效参数
+
+## 买家取消订单
+
+#### URL：
+POST http://[address]/buyer/cancel
+
+#### Request
+
+##### Body:
+```json
+{
+  "user_id": "$buyer id$",
+  "order_id": "$order id$",
+  "password": "$password$"
+}
+```
+
+##### 属性说明：
+
+变量名 | 类型 | 描述 | 是否可为空
+---|---|---|---
+user_id | string | 买家用户ID | N
+order_id | string | 订单ID | N
+password | string | 买家用户密码 | N 
+
+
+#### Response
+
+Status Code:
+
+码 | 描述
+--- | ---
+200 | 取消成功
+5XX | 无效参数
+401 | 授权失败
+
+## 查找历史订单
+
+#### URL：
+POST http://$address$/auth/history
+
+#### Request
+
+Headers:
+
+key | 类型 | 描述
+---|---|---
+token | string | 访问token
+
+Body:
+```
+{
+    "user_id":"$user name$"
+}
+```
+
+变量名 | 类型 | 描述 | 是否可为空
+---|---|---|---
+user_id | string | 用户名 | N
+
+#### Response
+
+Status Code:
+
+码 | 描述
+--- | ---
+200 | 查询成功
+401 | 查询失败，用户名或token错误
+
+Body:
+```
+{
+    "message":"$error message$",
+    "orders": [
+        
+    ]
+}
+```
+
+##### 属性说明：
+
+变量名 | 类型 | 描述 | 是否可为空
+---|---|---|---
+message | string | 返回错误消息，成功时为"ok" | N
+orders | array | 订单信息，只有返回200时才有效 | N
+
+orders的每个元素都是order_info类
+
+order_info类：
+
+变量名 | 类型 | 描述 | 是否可为空
+---|---|---|---
+id | string | 订单ID | N
+status | order_status | 订单状态 | N
+buyer_id | string | 购买者ID | N
+store_id | string | 商铺ID | N
+book_list | array | 书籍信息 | N
+
+order_status是一个枚举：
+
+值 | 描述
+---|---
+0 | 等待付款
+1 | 已取消
+2 | 已付款等待发货
+3 | 已发货
+4 | 已确认收货
+
+book_list的每个元素是一个三元组：
+
+变量名 | 类型 | 描述 | 是否可为空
+---|---|---|---
+book_id | string | 书籍ID | N
+count | integer | 购买数量 | N
+price | integer | 单价 | N
