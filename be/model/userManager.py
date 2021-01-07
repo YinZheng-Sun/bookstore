@@ -40,7 +40,7 @@ class userManager():
     token_lifetime: int = 3600  # 3600 second
 
     def __init__(self):
-        engine = create_engine('postgresql://root:123456@localhost:5432/bookstore')
+        engine = create_engine('postgresql://postgres:@localhost:5432/bookstore')
         DBSession = sessionmaker(bind=engine)
         self.session = DBSession()
 
@@ -62,6 +62,7 @@ class userManager():
         try:
             terminal = "terminal_{}".format(str(time.time()))
             token = jwt_encode(user_id, terminal)
+            print(token)
             new_gamer = User(
                 user_id=user_id,
                 password = password,
@@ -69,7 +70,7 @@ class userManager():
                 token = token,
                 terminal = terminal
             )
-            self.session.add(new_gamer)
+            print(self.session.add(new_gamer))
             self.session.commit()
         except BaseException:
             return error.error_exist_user_id(user_id)
@@ -77,8 +78,6 @@ class userManager():
 
     def check_token(self, user_id: str, token: str) -> (int, str):
         get_token = self.session.query(User).filter(User.user_id==user_id).first()
-        # cursor = self.conn.execute("SELECT token from user where user_id=?", (user_id,))
-        # row = cursor.fetchone()
         if get_token is None:
             return error.error_authorization_fail()
         db_token = get_token.token
@@ -88,8 +87,6 @@ class userManager():
 
     def check_password(self, user_id: str, password: str) -> (int, str):
         get_passwd = self.session.query(User).filter(User.user_id==user_id).first()
-        # cursor = self.conn.execute("SELECT password from user where user_id=?", (user_id,))
-        # row = cursor.fetchone()
         if get_passwd is None:
             return error.error_authorization_fail()
 

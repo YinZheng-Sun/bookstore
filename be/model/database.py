@@ -10,7 +10,7 @@ Base = declarative_base()
 
 class User(Base):
     __tablename__ = 'user'
-    user_id = Column(String,primary_key=True,autoincrement=1)
+    user_id = Column(String,primary_key=True)
     password = Column(String, nullable=False)
     balance = Column(Integer, nullable=False)
     token = Column(String, nullable=False)
@@ -18,12 +18,12 @@ class User(Base):
 
 class Store(Base):
     __tablename__ = 'store'
-    store_id = Column(String,nullable=False,primary_key=True,autoincrement=1)
+    store_id = Column(String,nullable=False,primary_key=True)
     owner = Column(String, ForeignKey('user.user_id'), nullable=False, index = True)
 
 class Book_info(Base):
     __tablename__ = 'book_info'
-    id = Column(String, primary_key=True,autoincrement=1)
+    id = Column(String, primary_key=True)
     title = Column(String, nullable=False)
     author = Column(String)
     publisher = Column(Text)
