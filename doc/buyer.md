@@ -14,8 +14,8 @@ token | string | 登录产生的会话标识 | N
 ##### Body:
 ```json
 {
-  "user_id": "buyer_id",
-  "store_id": "store_id",
+  "user_id": "buyer id",
+  "store_id": "store id",
   "books": [
     {
       "id": "1000067",
@@ -81,8 +81,8 @@ POST http://[address]/buyer/payment
 ##### Body:
 ```json
 {
-  "user_id": "buyer_id",
-  "order_id": "order_id",
+  "user_id": "buyer id",
+  "order_id": "order id",
   "password": "password"
 }
 ```
@@ -120,7 +120,7 @@ POST http://[address]/buyer/add_funds
 ##### Body:
 ```json
 {
-  "user_id": "user_id",
+  "user_id": "buyer id",
   "password": "password",
   "add_value": 10
 }
@@ -155,8 +155,8 @@ POST http://[address]/buyer/receive
 ##### Body:
 ```json
 {
-  "user_id": "$user_id$",
-  "order_id": "$order_id$",
+  "user_id": "$buyer id$",
+  "order_id": "$order id$",
   "password": "$password$"
 }
 ```
@@ -188,8 +188,8 @@ POST http://[address]/buyer/cancel
 ##### Body:
 ```json
 {
-  "user_id": "$buyer_id$",
-  "order_id": "$order_id$",
+  "user_id": "$buyer id$",
+  "order_id": "$order id$",
   "password": "$password$"
 }
 ```
