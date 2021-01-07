@@ -37,11 +37,12 @@ class TestSearch:
 
 
     def test_search(self):
-        code = self.search.search_info(0,self.store_id,self.search_info)
+        code = self.search.search_info(0, self.store_id, self.search_info)
         assert code == 200
 
         code = self.search.search_info(1000, self.store_id, self.search_info)
         assert code == 531
 
-
-
+        self.search_info['title'][0] = self.search_info['title'][0] + "'"
+        code = self.search.search_info(0, self.store_id, self.search_info)
+        assert code == 200
