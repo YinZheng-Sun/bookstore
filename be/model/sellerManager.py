@@ -1,5 +1,5 @@
 from be.model import error
-from be.database import User, Store, Book_info, Book_pic, Book_tag
+from be.database import User, Store, Order, Order_status, Book_info, Book_pic, Book_tag
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
@@ -108,12 +108,21 @@ class SellerManager():
             return 530, "{}".format(str(e))
         return 200, "ok"
 
-    def deliver(self, store_id: str, order_id: str) -> (int, str):
+    def deliver(self, user_id: str, order_id: str) -> (int, str):
         try:
-            if not self.store_id_exist(store_id):
-                return error.error_non_exist_store_id(store_id)
+            if not self.user_id_exist(user_id):
+                return error.error_non_exist_user_id(user_id)
 
-            cursor = self.session.query(Order).filter_by(id=order_id, store_id=store_id, status=Order_status.paid)
+            cursor = self.session.query(Order).filter_by(id=order_id, status=Order_status.paid)
+            order = cursor.first()
+            if order is None:
+                return error.error_invalid_order_id(order_id)
+            
+            store_id = order.store_id
+            if self.session.query(Store).filter_by(store_id=store_id, owner=user_id).first() is None:
+                return error.error_authorization_fail()
+            
+            cursor = self.session.query(Order).filter_by(id=order_id, status=Order_status.paid)
             rowcount = cursor.update({Order.status: Order_status.delivering})
             if rowcount == 0:
                 return error.error_invalid_order_id(order_id)
