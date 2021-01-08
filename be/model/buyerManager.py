@@ -202,7 +202,7 @@ class BuyerManager():
                     "store_id": order.store_id,
                     "status": order.status,
                     "book_list": [
-                        {"book_id": odi.book_id, "count": odi.count, "price": price}
+                        {"book_id": odi.book_id, "count": odi.count, "price": odi.price}
                         for odi in order_infos
                     ]
                 })

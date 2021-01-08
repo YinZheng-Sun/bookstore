@@ -216,7 +216,7 @@ Status Code:
 ## 查找历史订单
 
 #### URL：
-POST http://$address$/auth/history
+POST http://$address$/buyer/history
 
 #### Request
 
