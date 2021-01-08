@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 
 from be.database import Book_pic, Book_tag
 from be.model import error, sellerManager
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
 book_info_column = ['book_info.id', 'book_info.store_id', 'title', 'author', 'publisher', 'original_title',
                     'translator',
@@ -15,6 +15,7 @@ class SearchManager():
         engine = create_engine(
             'postgresql://root:123456@localhost:5432/bookstore')
         connection = engine.raw_connection()
+        self.conn = engine.connect()
         self.session = sessionmaker(bind=engine)()
         self.cursor = connection.cursor()
 
@@ -23,7 +24,7 @@ class SearchManager():
             if not sellerManager.SellerManager().store_id_exist(store_id):
                 return error.error_non_exist_store_id(store_id) + ([],)
 
-            sql: str = "select " + ','.join(book_info_column) + " from book_info "
+            sql: str = "select " + "*" + " from book_info"
 
             title = search_info.get("title", [])
             tags = search_info.get("tags", [])
@@ -32,26 +33,32 @@ class SearchManager():
             publishers = search_info.get("publishers", [])
 
             predicate = []
+
+            pre_dict = {}
             if len(title) != 0:
-                predicate.append(self.get_like_predicate('title', title))
+                predicate.append(self.get_like_predicate('title', title, pre_dict))
             if len(contents) != 0:
-                predicate.append(self.get_like_predicate('contents', contents))
+                predicate.append(self.get_like_predicate('contents', contents, pre_dict))
             if len(authors_or_translators) != 0:
-                predicate.append('(' + self.get_like_predicate('author', authors_or_translators) + ' or ' +
-                                 self.get_like_predicate('translator', authors_or_translators) + ')')
+                predicate.append('(' + self.get_like_predicate('author', authors_or_translators, pre_dict) + ' or ' +
+                                 self.get_like_predicate('translator', authors_or_translators, pre_dict) + ')')
             if len(publishers) != 0:
-                predicate.append(self.get_like_predicate('publisher', publishers))
+                predicate.append(self.get_like_predicate('publisher', publishers, pre_dict))
             if len(tags) != 0:
-                sql += ",book_tag "
-                predicate.append(self.get_tag_predicate('tags', tags))
+                sql += ",book_tag"
+                predicate.append(self.get_tag_predicate('tags', tags, pre_dict))
 
             while None in predicate:
                 predicate.remove(None)
             if len(predicate) != 0:
-                sql += 'where ' + ' and '.join(predicate) + ";"
+                sql += ' where ' + ' and '.join(predicate) + ";"
+            else:
+                sql += ";"
+            print(pre_dict)
             print(sql)
-            self.cursor.execute(sql)
+            self.cursor.execute(sql, pre_dict)
             self.cursor.scroll(page_id * 30)
+            # self.conn.execute(bind_sql)
             result = [self.trans_result(x) for x in self.cursor.fetchmany(30)]
 
             for book in result:
@@ -66,8 +73,7 @@ class SearchManager():
                 book['pictures'] = pictures
                 book['tags'] = tags
 
-
-
+            self.cursor.close()
         except psycopg2.ProgrammingError as e:
             return 531, "{}".format("page id not exists."), []
         except BaseException as e:
@@ -83,16 +89,21 @@ class SearchManager():
             cnt += 1
         return ans
 
-    def get_like_predicate(self, attribute, keywords):
+    def get_like_predicate(self, attribute, keywords, pre_dict):
         ans = []
         for kw in keywords:
-            ans.append(attribute + " like '%" + kw + "%'")
-
+            cnt = len(pre_dict)
+            pre = 'pre_' + str(cnt)
+            ans.append("{} like concat('%%',%({})s,'%%')".format(attribute, pre))
+            pre_dict[pre] = kw
         return '(' + ' or '.join(ans) + ')'
 
-    def get_tag_predicate(self, attribute, keywords):
+    def get_tag_predicate(self, attribute, keywords, pre_dict):
         ans = []
         for kw in keywords:
-            ans.append("tag = '{}'".format(kw))
+            cnt = len(pre_dict)
+            pre = 'pre_' + str(cnt)
+            pre_dict[pre] = kw
+            ans.append("tag = %({})s".format(pre))
 
         return 'book_tag.id = book_info.id and (' + ' or '.join(ans) + ')'

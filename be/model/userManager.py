@@ -62,6 +62,10 @@ class UserManager():
         try:
             terminal = "terminal_{}".format(str(time.time()))
             token = jwt_encode(user_id, terminal)
+
+            if self.session.query(User).filter_by(user_id=user_id).first() is not None:
+                return error.error_exist_user_id(user_id)
+            
             new_gamer = User(
                 user_id=user_id,
                 password = password,
@@ -71,8 +75,8 @@ class UserManager():
             )
             self.session.add(new_gamer)
             self.session.commit()
-        except BaseException:
-            return error.error_exist_user_id(user_id)
+        except BaseException as e:
+            return 530, "{}".format(str(e))
         return 200, "ok"
 
     def check_token(self, user_id: str, token: str) -> (int, str):

@@ -5,6 +5,8 @@ from sqlalchemy import create_engine, Column
 from sqlalchemy import BigInteger, String, Integer, ForeignKey, ForeignKeyConstraint, Text, DateTime, Boolean, LargeBinary, Enum
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from be.timeout import delay
+import datetime
 
 engine = create_engine('postgresql://root:123456@localhost:5432/bookstore')
 Base = declarative_base()
@@ -92,5 +94,17 @@ def run_clear():
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     session.commit()
+    Cancel_not_paid(session)
     print("finish")
-    session.close()
+
+@delay(1.0)
+def Cancel_not_paid(session):
+    cur_pt = datetime.datetime.now() - datetime.timedelta(seconds = 5)
+    try:
+        cursor = session.query(Order).filter(Order.status==Order_status.pending, Order.pt < cur_pt)
+        rowcount = cursor.update({Order.status: Order_status.cancelled})
+
+        session.commit()
+    except BaseException as e:
+        pass
+    Cancel_not_paid(session)
