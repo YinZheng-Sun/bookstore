@@ -6,9 +6,8 @@ from sqlalchemy import create_engine
 
 class SellerManager():
     def __init__(self):
-        # engine = create_engine(
-        #     'postgresql://root:123456@localhost:5432/bookstore')
-        engine = create_engine('postgresql://postgres:@localhost:5432/bookstore')
+        engine = create_engine(
+            'postgresql://root:123456@localhost:5432/bookstore')
         self.session = sessionmaker(bind=engine)()
 
     def add_book(self, user_id: str, store_id: str, book_info: dict, stock_level: int):
