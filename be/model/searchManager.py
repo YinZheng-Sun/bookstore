@@ -12,8 +12,9 @@ book_info_column = ['book_info.id', 'book_info.store_id', 'title', 'author', 'pu
 
 class SearchManager():
     def __init__(self):
-        engine = create_engine(
-            'postgresql://root:123456@localhost:5432/bookstore')
+        # engine = create_engine(
+        #     'postgresql://root:123456@localhost:5432/bookstore')
+        engine = create_engine('postgresql://postgres:@localhost:5432/bookstore')
         connection = engine.raw_connection()
         self.conn = engine.connect()
         self.session = sessionmaker(bind=engine)()

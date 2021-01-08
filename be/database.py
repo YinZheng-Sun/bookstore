@@ -8,7 +8,8 @@ from sqlalchemy.orm import sessionmaker
 from be.timeout import delay
 import datetime
 
-engine = create_engine('postgresql://root:123456@localhost:5432/bookstore')
+# engine = create_engine('postgresql://root:123456@localhost:5432/bookstore')
+engine = create_engine('postgresql://postgres:@localhost:5432/bookstore')
 Base = declarative_base()
 
 class User(Base):
