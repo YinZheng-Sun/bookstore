@@ -62,7 +62,7 @@ def cancel():
     return jsonify({"message": message}), code
 
 
-@bp_buyer.route("/history", methods=["POST "])
+@bp_buyer.route("/history", methods=["POST"])
 def history():
     user_id: str = request.json.get("user_id")
     b = BuyerManager()
