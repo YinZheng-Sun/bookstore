@@ -52,12 +52,22 @@ class Book_tag(Base):
 
 
 # 订单状态
-class Order_status(enum.Enum):
+class Order_status(enum.IntEnum):
     pending = 0  # 等待付款
     cancelled = 1  # 已取消
     paid = 2  # 已付款等待发货
     delivering = 3  # 已发货
     received = 4  # 已确认收货
+
+
+Order_Status_String = [
+    "pending",
+    "cancelled",
+    "paid",
+    "delivering",
+    "received"
+]
+
 
 # 订单概要
 class Order(Base):

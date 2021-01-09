@@ -270,20 +270,20 @@ order_info类：
 变量名 | 类型 | 描述 | 是否可为空
 ---|---|---|---
 id | string | 订单ID | N
-status | order_status | 订单状态 | N
+status | String | 订单状态 | N
 buyer_id | string | 购买者ID | N
 store_id | string | 商铺ID | N
 book_list | array | 书籍信息 | N
 
-order_status是一个枚举：
+status是一个枚举：
 
 值 | 描述
 ---|---
-0 | 等待付款
-1 | 已取消
-2 | 已付款等待发货
-3 | 已发货
-4 | 已确认收货
+pending | 等待付款
+cancelled | 已取消
+paid | 已付款等待发货
+delivering | 已发货
+received | 已确认收货
 
 book_list的每个元素是一个三元组：
 

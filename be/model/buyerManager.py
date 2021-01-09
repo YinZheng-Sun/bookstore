@@ -3,6 +3,7 @@ from sqlalchemy import create_engine, DateTime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
 from be.database import User, Store, Order_status, Order, Order_info, Book_info
+from be.database import Order_Status_String
 import datetime
 import uuid
 import json
@@ -200,7 +201,7 @@ class BuyerManager():
                 orders.append({
                     "buyer_id": order.buyer_id,
                     "store_id": order.store_id,
-                    "status": order.status,
+                    "status": Order_Status_String[int(order.status)],
                     "book_list": [
                         {"book_id": odi.book_id, "count": odi.count, "price": odi.price}
                         for odi in order_infos
@@ -208,6 +209,7 @@ class BuyerManager():
                 })
             self.session.close()
         except BaseException as e:
+            print(e)
             return 530, "{}".format(str(e)), []
         return 200, "ok", orders
 

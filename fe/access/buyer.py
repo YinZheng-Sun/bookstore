@@ -70,5 +70,5 @@ class Buyer:
         url = urljoin(self.url_prefix, "history")
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)
-        response = r.json()
-        return r.status_code, response
+        response_json = r.json()
+        return r.status_code, response_json

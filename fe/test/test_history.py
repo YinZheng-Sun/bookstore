@@ -25,5 +25,4 @@ class TestHistory:
 
     def test_history(self):
         code, response = self.buyer.history()
-        print(response)
         assert code == 200
