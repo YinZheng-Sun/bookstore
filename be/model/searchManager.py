@@ -21,7 +21,7 @@ class SearchManager():
 
     def search(self, store_id: str, page_id: int, search_info: dict) -> (int, str, list):
         try:
-            if not sellerManager.SellerManager().store_id_exist(store_id):
+            if store_id is not None and not sellerManager.SellerManager().store_id_exist(store_id):
                 return error.error_non_exist_store_id(store_id) + ([],)
 
             sql: str = "select " + ','.join(book_info_column) + " from book_info"
@@ -51,14 +51,22 @@ class SearchManager():
             while None in predicate:
                 predicate.remove(None)
             if len(predicate) != 0:
-                sql += ' where ' + ' and '.join(predicate) + ";"
+                sql += ' where ';
+                if store_id is not None:
+                    pre = 'pre_' + str(len(pre_dict))
+                    sql += 'book_info.store_id = %({})s and '.format(pre)
+                    pre_dict[pre] = store_id
+                sql += ' and '.join(predicate) + ";"
             else:
+                if store_id is not None:
+                    pre = 'pre_' + str(len(pre_dict))
+                    sql += ' where book_info.store_id = %({})s'.format(pre)
+                    pre_dict[pre] = store_id
                 sql += ";"
-            print(pre_dict)
-            print(sql)
+
             self.cursor.execute(sql, pre_dict)
             self.cursor.scroll(page_id * 30)
-            # self.conn.execute(bind_sql)
+
             result = [self.trans_result(x) for x in self.cursor.fetchmany(30)]
 
             for book in result:
@@ -77,7 +85,7 @@ class SearchManager():
         except psycopg2.ProgrammingError as e:
             return 531, "{}".format("page id not exists."), []
         except BaseException as e:
-            return str(e), "{}".format(repr(e)), []
+            return 530, "{}".format(repr(e)), []
 
         return 200, "ok", result
 
