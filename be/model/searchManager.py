@@ -24,7 +24,7 @@ class SearchManager():
             if not sellerManager.SellerManager().store_id_exist(store_id):
                 return error.error_non_exist_store_id(store_id) + ([],)
 
-            sql: str = "select " + "*" + " from book_info"
+            sql: str = "select " + ','.join(book_info_column) + " from book_info"
 
             title = search_info.get("title", [])
             tags = search_info.get("tags", [])
