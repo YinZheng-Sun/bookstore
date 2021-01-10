@@ -40,7 +40,8 @@ class UserManager():
     token_lifetime: int = 3600  # 3600 second
 
     def __init__(self):
-        engine = create_engine('postgresql://root:123456@localhost:5432/bookstore')
+        # engine = create_engine('postgresql://root:123456@localhost:5432/bookstore')
+        engine = create_engine('postgresql://postgres:@localhost:5432/bookstore')
         DBSession = sessionmaker(bind=engine)
         self.session = DBSession()
 

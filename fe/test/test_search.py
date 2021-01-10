@@ -9,8 +9,6 @@ from fe.access import book as b
 from fe.access import auth
 from fe.access import seller
 
-
-
 class TestSearch:
     @pytest.fixture(autouse=True)
     def pre_run_initialization(self):

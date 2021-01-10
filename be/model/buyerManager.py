@@ -13,7 +13,8 @@ from be.model import error
 
 class BuyerManager():
     def __init__(self):
-        engine = create_engine('postgresql://root:123456@localhost:5432/bookstore')
+        # engine = create_engine('postgresql://root:123456@localhost:5432/bookstore')
+        engine = create_engine('postgresql://postgres:@localhost:5432/bookstore')
         DBSession = sessionmaker(bind=engine)
         self.session = DBSession()
 
@@ -209,7 +210,7 @@ class BuyerManager():
                 })
             self.session.close()
         except BaseException as e:
-            print(e)
+            # print(e)
             return 530, "{}".format(str(e)), []
         return 200, "ok", orders
 

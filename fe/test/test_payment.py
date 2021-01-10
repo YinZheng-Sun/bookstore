@@ -68,3 +68,10 @@ class TestPayment:
 
         code = self.buyer.payment(self.order_id)
         assert code != 200
+
+    def test_wrong_buyer(self):
+        wrong_b = register_new_buyer(self.buyer_id, self.password)
+        code = wrong_b.add_funds(self.total_price)
+        assert code == 200
+        code = self.buyer.payment(self.order_id)
+        assert code != 200
