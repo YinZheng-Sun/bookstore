@@ -41,6 +41,19 @@ class TestSearch:
         code = self.search.search_info(1000, self.store_id, self.search_info)
         assert code == 531
 
+        code = self.search.search_info(0, self.store_id + "err", self.search_info)
+        assert code == 513
+
+        code = self.search.search_info_not_store(0, self.search_info)
+        assert code == 200
+
         self.search_info['title'][0] = self.search_info['title'][0] + "'"
         code = self.search.search_info(0, self.store_id, self.search_info)
+        assert code == 200
+
+        search_info = {'title': [], 'tags': [], 'contents': [], 'authors_or_translators': [], 'publishers': []}
+        code = self.search.search_info(0, self.store_id, search_info)
+        assert code == 200
+
+        code = self.search.search_info_not_store(0, search_info)
         assert code == 200
