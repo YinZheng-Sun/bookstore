@@ -13,8 +13,7 @@ import uuid
 class TestCancel:
     @pytest.fixture(autouse=True)
     def pre_run_initialization(self):
-        # engine = create_engine('postgresql://root:123456@localhost:5432/bookstore')
-        engine = create_engine('postgresql://postgres:@localhost:5432/bookstore')
+        engine = create_engine('postgresql://root:123456@localhost:5432/bookstore')
         DBSession = sessionmaker(bind=engine)
         self.session = DBSession()
         self.seller_id = "test_autocancel_seller_{}".format(str(uuid.uuid1()))
@@ -34,7 +33,5 @@ class TestCancel:
 
     def test_autocancel(self):
         time.sleep(7)
-        print(1)
         cursor = self.session.query(Order).filter_by(id=self.order_id).first()
-        print(cursor.status)
         assert cursor.status == Order_status.cancelled

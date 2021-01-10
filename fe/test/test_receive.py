@@ -54,7 +54,6 @@ class TestReceive:
         
         fake_b = register_new_buyer(self.buyer_id + 's', self.password + 's')
         code = fake_b.receive(self.order_id)
-
         assert code != 200
 
     def test_non_exist_order(self):

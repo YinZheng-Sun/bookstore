@@ -8,13 +8,6 @@ from fe.access.new_buyer import register_new_buyer
 from fe.access.buyer import Buyer
 from fe import conf
 
-logging.getLogger().setLevel(logging.INFO)
-logging.basicConfig(level=logging.INFO,#控制台打印的日志级别
-                    filename='workload.log',
-                    filemode='w',##模式，有w和a，w就是写模式，每次都会重新写日志，覆盖之前的日志
-                    #a是追加模式，默认如果不写的话，就是追加模式
-
-                    )
 
 class NewOrder:
     def __init__(self, buyer: Buyer, store_id, book_id_and_count):
